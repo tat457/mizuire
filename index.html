@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>水入れゲーム</title>
+
+<style>
+body{
+    font-family:sans-serif;
+    text-align:center;
+    background:#e3f2fd;
+}
+
+#cup{
+    width:180px;
+    height:300px;
+    border:6px solid #1565c0;
+    margin:20px auto;
+    position:relative;
+    overflow:hidden;
+    border-radius:0 0 20px 20px;
+    background:white;
+}
+
+#water{
+    position:absolute;
+    bottom:0;
+    width:100%;
+    height:0%;
+    background:#42a5f5;
+    transition:0.3s;
+}
+
+button{
+    padding:12px;
+    margin:5px;
+    font-size:18px;
+}
+
+#msg{
+    font-size:24px;
+}
+</style>
+</head>
+<body>
+
+<h1>💧 水入れゲーム</h1>
+
+<p id="question"></p>
+
+<div id="cup">
+    <div id="water"></div>
+</div>
+
+<button onclick="add(10)">+0.1</button>
+<button onclick="add(25)">+0.25</button>
+<button onclick="add(50)">+0.5</button>
+<button onclick="check()">決定</button>
+
+<div id="msg"></div>
+
+<script>
+const water=document.getElementById("water");
+const question=document.getElementById("question");
+const msg=document.getElementById("msg");
+
+let target=0.5;
+let amount=0;
+
+function nextQuestion(){
+    const arr=[0.3,0.5,0.75,1.0];
+    target=arr[Math.floor(Math.random()*arr.length)];
+    amount=0;
+    update();
+    question.textContent=`${target}L にしよう`;
+}
+
+function update(){
+    water.style.height=(amount*100)+"%";
+}
+
+function add(v){
+    amount += v/100;
+
+    if(amount>1){
+        amount=1;
+    }
+
+    update();
+}
+
+function check(){
+    if(Math.abs(amount-target)<0.05){
+        msg.textContent="⭕ 正解！";
+    }else{
+        msg.textContent=`❌ ${amount.toFixed(2)}L`;
+    }
+
+    setTimeout(nextQuestion,1200);
+}
+
+nextQuestion();
+</script>
+
+</body>
+</html>

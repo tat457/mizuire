@@ -3,105 +3,536 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>水入れゲーム</title>
+<title>みろ水作りゲーム</title>
 
 <style>
-body{
-    font-family:sans-serif;
-    text-align:center;
-    background:#e3f2fd;
+:root{
+    --sky:#dff3ff;
+    --ink:#12324a;
+    --panel:#ffffff;
+    --line:#2f6f95;
+    --shadow:0 10px 24px rgba(18,50,74,0.14);
 }
 
-#cup{
-    width:180px;
-    height:300px;
-    border:6px solid #1565c0;
-    margin:20px auto;
+*{
+    box-sizing:border-box;
+}
+
+body{
+    margin:0;
+    font-family:system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;
+    color:var(--ink);
+    text-align:center;
+    background:
+        radial-gradient(circle at 15% 12%, rgba(255,255,255,0.85) 0 11%, transparent 12%),
+        linear-gradient(160deg,#d9f2ff 0%,#e8fff2 58%,#fff5d8 100%);
+    min-height:100vh;
+}
+
+main{
+    width:min(1080px,94vw);
+    margin:0 auto;
+    padding:22px 0 34px;
+}
+
+h1{
+    margin:6px 0 10px;
+    font-size:clamp(28px,5vw,46px);
+}
+
+.question-card{
+    background:rgba(255,255,255,0.86);
+    border:3px solid rgba(47,111,149,0.24);
+    box-shadow:var(--shadow);
+    border-radius:8px;
+    padding:14px;
+    margin:0 auto 18px;
+}
+
+#question{
+    margin:0;
+    font-size:clamp(18px,3.4vw,28px);
+    font-weight:800;
+    line-height:1.45;
+}
+
+.target-row{
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-top:10px;
+    font-weight:700;
+}
+
+.swatch{
+    width:28px;
+    height:28px;
+    border-radius:50%;
+    border:3px solid rgba(18,50,74,0.18);
+    display:inline-block;
+    vertical-align:middle;
+}
+
+.game-board{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:16px;
+    align-items:stretch;
+}
+
+.panel{
+    background:rgba(255,255,255,0.9);
+    border:3px solid rgba(47,111,149,0.18);
+    border-radius:8px;
+    box-shadow:var(--shadow);
+    padding:14px;
+}
+
+.panel h2{
+    margin:0 0 12px;
+    font-size:22px;
+}
+
+.bottles{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:12px;
+}
+
+.bottle-wrap{
+    border:2px solid rgba(18,50,74,0.12);
+    border-radius:8px;
+    padding:10px;
+    background:#f9fcff;
+}
+
+.label{
+    min-height:48px;
+    font-weight:800;
+    line-height:1.35;
+}
+
+.bottle,
+.mix-tank{
+    width:130px;
+    height:240px;
+    border:6px solid var(--line);
+    border-top:0;
+    margin:10px auto;
     position:relative;
     overflow:hidden;
-    border-radius:0 0 20px 20px;
-    background:white;
+    border-radius:0 0 24px 24px;
+    background:
+        linear-gradient(90deg, rgba(255,255,255,0.85), rgba(255,255,255,0.25) 18%, transparent 20%),
+        #fff;
 }
 
-#water{
+.mix-tank{
+    width:min(230px,68vw);
+    height:300px;
+    border-color:#5f5a9e;
+}
+
+.water{
     position:absolute;
     bottom:0;
+    left:0;
     width:100%;
     height:0%;
-    background:#42a5f5;
-    transition:0.3s;
+    transition:height 0.28s ease, background 0.28s ease;
+}
+
+.mark{
+    position:absolute;
+    left:0;
+    width:100%;
+    border-top:3px dashed rgba(18,50,74,0.45);
+    z-index:2;
+}
+
+.mark span{
+    position:absolute;
+    right:6px;
+    top:-28px;
+    background:rgba(255,255,255,0.88);
+    border-radius:6px;
+    padding:2px 5px;
+    font-size:13px;
+    font-weight:800;
+}
+
+.meter{
+    font-size:20px;
+    font-weight:900;
+}
+
+.controls{
+    display:flex;
+    flex-wrap:wrap;
+    justify-content:center;
+    gap:8px;
+    margin-top:12px;
 }
 
 button{
-    padding:12px;
-    margin:5px;
-    font-size:18px;
+    border:0;
+    border-radius:8px;
+    background:#1677b9;
+    color:#fff;
+    cursor:pointer;
+    font-size:17px;
+    font-weight:800;
+    padding:11px 14px;
+    box-shadow:0 4px 0 #0c4e7e;
+}
+
+button:active{
+    transform:translateY(2px);
+    box-shadow:0 2px 0 #0c4e7e;
+}
+
+button:disabled{
+    cursor:not-allowed;
+    opacity:0.45;
+    transform:none;
+}
+
+.mix-button{
+    background:#7b45c8;
+    box-shadow:0 4px 0 #4e2b84;
+}
+
+.finish-button{
+    background:#0b8f5a;
+    box-shadow:0 4px 0 #06633e;
+}
+
+.danger-button{
+    background:#d4513f;
+    box-shadow:0 4px 0 #8d2c21;
 }
 
 #msg{
-    font-size:24px;
+    min-height:34px;
+    margin-top:14px;
+    font-size:clamp(18px,3vw,25px);
+    font-weight:900;
+}
+
+.recipe{
+    display:grid;
+    gap:8px;
+    margin-top:10px;
+    text-align:left;
+}
+
+.recipe-line{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:10px;
+    border:2px solid rgba(18,50,74,0.1);
+    border-radius:8px;
+    background:#f9fcff;
+    padding:9px 11px;
+    font-weight:800;
+}
+
+@media (max-width:760px){
+    .game-board{
+        grid-template-columns:1fr;
+    }
+
+    .bottle,
+    .mix-tank{
+        height:220px;
+    }
 }
 </style>
 </head>
 <body>
+<main>
+    <h1>みろ水作りゲーム</h1>
 
-<h1>💧 水入れゲーム</h1>
+    <section class="question-card" aria-live="polite">
+        <p id="question"></p>
+        <div class="target-row">
+            <span>完成の色</span>
+            <span id="targetSwatch" class="swatch"></span>
+            <span id="targetAmount"></span>
+        </div>
+    </section>
 
-<p id="question"></p>
+    <section class="game-board">
+        <div class="panel">
+            <h2>色水をくむ</h2>
+            <div class="bottles">
+                <div class="bottle-wrap">
+                    <div id="firstLabel" class="label"></div>
+                    <div class="bottle">
+                        <div id="firstMark" class="mark"><span></span></div>
+                        <div id="firstWater" class="water"></div>
+                    </div>
+                    <div id="firstMeter" class="meter">0.00L</div>
+                    <div class="controls">
+                        <button data-fill="0" data-step="0.1">+0.1L</button>
+                        <button data-fill="0" data-step="0.25">+0.25L</button>
+                        <button data-fill="0" data-step="0.5">+0.5L</button>
+                    </div>
+                </div>
 
-<div id="cup">
-    <div id="water"></div>
-</div>
+                <div class="bottle-wrap">
+                    <div id="secondLabel" class="label"></div>
+                    <div class="bottle">
+                        <div id="secondMark" class="mark"><span></span></div>
+                        <div id="secondWater" class="water"></div>
+                    </div>
+                    <div id="secondMeter" class="meter">0.00L</div>
+                    <div class="controls">
+                        <button data-fill="1" data-step="0.1">+0.1L</button>
+                        <button data-fill="1" data-step="0.25">+0.25L</button>
+                        <button data-fill="1" data-step="0.5">+0.5L</button>
+                    </div>
+                </div>
+            </div>
 
-<button onclick="add(10)">+0.1</button>
-<button onclick="add(25)">+0.25</button>
-<button onclick="add(50)">+0.5</button>
-<button onclick="check()">決定</button>
+            <div class="controls">
+                <button id="mixButton" class="mix-button">まぜる</button>
+                <button id="resetButton" class="danger-button">やりなおす</button>
+            </div>
+        </div>
 
-<div id="msg"></div>
+        <div class="panel">
+            <h2>まぜた水</h2>
+            <div class="mix-tank">
+                <div id="targetMark" class="mark"><span></span></div>
+                <div id="mixWater" class="water"></div>
+            </div>
+            <div id="mixMeter" class="meter">0.00L</div>
+            <div class="controls">
+                <button data-drain="0.1">-0.1L</button>
+                <button data-drain="0.25">-0.25L</button>
+                <button data-drain="0.5">-0.5L</button>
+                <button id="finishButton" class="finish-button">完成</button>
+            </div>
+            <div class="recipe" id="recipe"></div>
+        </div>
+    </section>
+
+    <div id="msg" aria-live="polite"></div>
+</main>
 
 <script>
-const water=document.getElementById("water");
-const question=document.getElementById("question");
-const msg=document.getElementById("msg");
+const maxBottle = 2;
+const maxTank = 3.2;
+const tolerance = 0.04;
 
-let target=0.5;
-let amount=0;
+const colors = {
+    blue:{name:"青色", css:"#2f80ed"},
+    red:{name:"赤色", css:"#f04f5f"},
+    yellow:{name:"黄色", css:"#ffd43b"},
+    white:{name:"白色", css:"#f7fbff"},
+    black:{name:"黒色", css:"#2c2c35"}
+};
 
-function nextQuestion(){
-    const arr=[0.3,0.5,0.75,1.0];
-    target=arr[Math.floor(Math.random()*arr.length)];
-    amount=0;
-    update();
-    question.textContent=`${target}L にしよう`;
+const recipes = [
+    {parts:["blue","red"], result:{name:"紫色", css:"#8d4fd1"}},
+    {parts:["blue","yellow"], result:{name:"緑色", css:"#24b47e"}},
+    {parts:["red","yellow"], result:{name:"オレンジ色", css:"#ff8c2a"}},
+    {parts:["red","white"], result:{name:"ピンク色", css:"#ff8fbd"}},
+    {parts:["blue","white"], result:{name:"水色", css:"#60d4ff"}},
+    {parts:["yellow","black"], result:{name:"カーキ色", css:"#8b8d3a"}},
+    {parts:["red","black"], result:{name:"暗い赤色", css:"#8f2337"}},
+    {parts:["blue","black"], result:{name:"紺色", css:"#1e3f88"}}
+];
+
+const amounts = [0.6,0.75,0.8,0.9,1.0,1.1,1.2,1.25,1.4,1.5,1.6,1.75,1.8];
+
+const state = {
+    recipe:null,
+    required:[0,0],
+    target:0,
+    cups:[0,0],
+    mixed:false,
+    mixAmount:0
+};
+
+const el = {
+    question:document.getElementById("question"),
+    targetSwatch:document.getElementById("targetSwatch"),
+    targetAmount:document.getElementById("targetAmount"),
+    recipe:document.getElementById("recipe"),
+    msg:document.getElementById("msg"),
+    mixButton:document.getElementById("mixButton"),
+    resetButton:document.getElementById("resetButton"),
+    finishButton:document.getElementById("finishButton"),
+    labels:[document.getElementById("firstLabel"),document.getElementById("secondLabel")],
+    waters:[document.getElementById("firstWater"),document.getElementById("secondWater")],
+    meters:[document.getElementById("firstMeter"),document.getElementById("secondMeter")],
+    marks:[document.getElementById("firstMark"),document.getElementById("secondMark")],
+    mixWater:document.getElementById("mixWater"),
+    mixMeter:document.getElementById("mixMeter"),
+    targetMark:document.getElementById("targetMark")
+};
+
+function randomItem(list){
+    return list[Math.floor(Math.random()*list.length)];
 }
 
-function update(){
-    water.style.height=(amount*100)+"%";
+function roundLiter(value){
+    return Math.round(value*100)/100;
 }
 
-function add(v){
-    amount += v/100;
+function formatLiter(value){
+    return `${value.toFixed(2)}L`;
+}
 
-    if(amount>1){
-        amount=1;
+function chooseQuestion(){
+    const recipe = randomItem(recipes);
+    let first = randomItem(amounts);
+    let second = randomItem(amounts);
+    let total = roundLiter(first + second);
+    let targetChoices = amounts.filter(value => value < total - 0.09 && value >= 0.5);
+
+    if(targetChoices.length === 0){
+        first = 1.5;
+        second = 1.2;
+        total = 2.7;
+        targetChoices = [2.0];
     }
 
-    update();
+    state.recipe = recipe;
+    state.required = [first,second];
+    state.target = randomItem(targetChoices);
+    state.cups = [0,0];
+    state.mixed = false;
+    state.mixAmount = 0;
+    el.msg.textContent = "";
+    updateView();
 }
 
-function check(){
-    if(Math.abs(amount-target)<0.05){
-        msg.textContent="⭕ 正解！";
+function updateView(){
+    const [firstKey, secondKey] = state.recipe.parts;
+    const source = [colors[firstKey], colors[secondKey]];
+
+    el.question.textContent =
+        `${source[0].name}の水${formatLiter(state.required[0])}と` +
+        `${source[1].name}の水${formatLiter(state.required[1])}を作ってまぜて、` +
+        `${state.recipe.result.name}の水${formatLiter(state.target)}を作ろう`;
+
+    el.targetSwatch.style.background = state.recipe.result.css;
+    el.targetAmount.textContent = `目標 ${formatLiter(state.target)}`;
+
+    source.forEach((item,index) => {
+        el.labels[index].textContent = `${item.name} ${formatLiter(state.required[index])}`;
+        el.waters[index].style.height = `${Math.min(state.cups[index]/maxBottle,1)*100}%`;
+        el.waters[index].style.background = item.css;
+        el.meters[index].textContent = formatLiter(state.cups[index]);
+        el.marks[index].style.bottom = `${Math.min(state.required[index]/maxBottle,1)*100}%`;
+        el.marks[index].querySelector("span").textContent = formatLiter(state.required[index]);
+    });
+
+    el.mixWater.style.height = `${Math.min(state.mixAmount/maxTank,1)*100}%`;
+    el.mixWater.style.background = state.mixed ? state.recipe.result.css : "transparent";
+    el.mixMeter.textContent = formatLiter(state.mixAmount);
+    el.targetMark.style.bottom = `${Math.min(state.target/maxTank,1)*100}%`;
+    el.targetMark.querySelector("span").textContent = `目標 ${formatLiter(state.target)}`;
+
+    el.recipe.innerHTML = "";
+    [
+        `${source[0].name}: ${formatLiter(state.cups[0])} / ${formatLiter(state.required[0])}`,
+        `${source[1].name}: ${formatLiter(state.cups[1])} / ${formatLiter(state.required[1])}`,
+        `${state.recipe.result.name}: ${formatLiter(state.mixAmount)} / ${formatLiter(state.target)}`
+    ].forEach(text => {
+        const line = document.createElement("div");
+        line.className = "recipe-line";
+        line.textContent = text;
+        el.recipe.appendChild(line);
+    });
+
+    document.querySelectorAll("[data-fill]").forEach(button => {
+        button.disabled = state.mixed;
+    });
+    document.querySelectorAll("[data-drain]").forEach(button => {
+        button.disabled = !state.mixed || state.mixAmount <= 0;
+    });
+    el.mixButton.disabled = state.mixed;
+    el.finishButton.disabled = !state.mixed;
+}
+
+function addWater(index, step){
+    if(state.mixed){
+        return;
+    }
+    state.cups[index] = Math.min(maxBottle, roundLiter(state.cups[index] + step));
+    el.msg.textContent = "";
+    updateView();
+}
+
+function resetQuestion(){
+    state.cups = [0,0];
+    state.mixed = false;
+    state.mixAmount = 0;
+    el.msg.textContent = "もう一度くんでみよう";
+    updateView();
+}
+
+function mixWater(){
+    const firstOk = Math.abs(state.cups[0] - state.required[0]) <= tolerance;
+    const secondOk = Math.abs(state.cups[1] - state.required[1]) <= tolerance;
+
+    if(!firstOk || !secondOk){
+        el.msg.textContent = "線ぴったりまで色水をくんでからまぜよう";
+        return;
+    }
+
+    state.mixed = true;
+    state.mixAmount = roundLiter(state.cups[0] + state.cups[1]);
+    el.msg.textContent = "まざったよ。多い分をすてて目標の線に合わせよう";
+    updateView();
+}
+
+function drainWater(step){
+    if(!state.mixed){
+        return;
+    }
+    state.mixAmount = Math.max(0, roundLiter(state.mixAmount - step));
+    el.msg.textContent = "";
+    updateView();
+}
+
+function finish(){
+    if(!state.mixed){
+        return;
+    }
+
+    if(Math.abs(state.mixAmount - state.target) <= tolerance){
+        el.msg.textContent = "クリア！次の色水に挑戦";
+        setTimeout(chooseQuestion, 1300);
     }else{
-        msg.textContent=`❌ ${amount.toFixed(2)}L`;
+        el.msg.textContent = `${formatLiter(state.mixAmount)}だよ。目標の線まで調整しよう`;
     }
-
-    setTimeout(nextQuestion,1200);
 }
 
-nextQuestion();
-</script>
+document.querySelectorAll("[data-fill]").forEach(button => {
+    button.addEventListener("click", () => {
+        addWater(Number(button.dataset.fill), Number(button.dataset.step));
+    });
+});
 
+document.querySelectorAll("[data-drain]").forEach(button => {
+    button.addEventListener("click", () => {
+        drainWater(Number(button.dataset.drain));
+    });
+});
+
+el.mixButton.addEventListener("click", mixWater);
+el.resetButton.addEventListener("click", resetQuestion);
+el.finishButton.addEventListener("click", finish);
+
+chooseQuestion();
+</script>
 </body>
 </html>
